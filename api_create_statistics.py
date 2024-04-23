@@ -1,22 +1,16 @@
-import plotly
-import plotly.express as px
-import plotly.graph_objects as go
-from skimage import measure
 from PIL import Image
-import os
+from skimage import measure
 import numpy as np
 import pandas as pd
-from tkinter import filedialog
-import sys
 from skimage.measure import regionprops_table
 
 def read_images(api_img, api_mask):
     img = None
     mask = None
 
-    img = api_img
+    img = Image.open(api_img)
 
-    mask = api_mask
+    mask = Image.open(api_mask)
 
     img = img.convert('L')
     w, h = img.size
@@ -30,7 +24,7 @@ def read_images(api_img, api_mask):
     mask = mask > 150
     print(f'=============> images loaded')
     
-    make_prop(img, mask)
+    return make_prop(img, mask)
 
 def make_prop(img, mask):
     
@@ -38,15 +32,14 @@ def make_prop(img, mask):
     props = measure.regionprops(labels, img)
     print(f'=============> props created')
 
-    make_table_of_features(labels)
+    return make_table_of_features(labels)
 
 def make_table_of_features(labels):
 
-    props_pd = regionprops_table(labels, properties=('centroid',
-                                                'orientation',
-                                                'axis_major_length',
-                                                'axis_minor_length', 'eccentricity', 'perimeter', 'area'))
+    props_pd = regionprops_table(labels, properties=('centroid','orientation',
+                                                     'eccentricity', 'perimeter', 'area'))
                                             
+    # return props_pd
     res_df = pd.DataFrame(props_pd)
-    res_df.to_csv('output.csv', index=False)
     print(f'=============> table created')
+    return res_df

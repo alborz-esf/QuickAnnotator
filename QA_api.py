@@ -19,7 +19,7 @@ from QA_config import config, get_database_uri
 from QA_db import Image, Project, Roi, db, Job, get_latest_modelid, get_imagetable
 from QA_pool import pool_get_image, pool_run_script, update_completed_job_status
 from QA_utils import get_file_tail
-
+from api_create_statistics import read_images
 
 api = Blueprint("api", __name__)
 jobs_logger = logging.getLogger('jobs')
@@ -651,6 +651,7 @@ def upload_image(project_name):
 
 @api.route("/api/<project_name>/roi/<roi_name>/mask", methods=["GET"])
 def get_roimask(project_name, roi_name):
+    
     mask_folder = f"projects/{project_name}/mask/"
     match = re.search(r"(.*)_(\d+)_(\d+)_roi.png", roi_name)
     mask_name = f"{match.group(1)}_mask.png"
@@ -674,6 +675,21 @@ def get_roimask(project_name, roi_name):
     response.headers['Content-Disposition'] = f'inline; filename = "{roi_name.replace(".png", "_mask.png")}"'
 
     return response
+
+@api.route("/api/<project_name>/image/<image_name>/mask/get_statistics", methods=["GET"])
+def get_statistics(project_name, image_name):
+
+    if not (os.path.exists(f"./projects/{project_name}/mask/"+image_name.replace(".png", "_mask.png"))):
+        return jsonify(error=f"Human annotation mask file doesn't exist"), 404
+    
+    image = f"./projects/{project_name}/{image_name}"
+    mask = f"./projects/{project_name}/mask/"+ image_name.replace(".png", "_mask.png")
+
+    res = read_images(image, mask)
+
+    annotation_stat_path = f"./projects/{project_name}/"
+    res.to_csv(annotation_stat_path+f"{project_name}_annotation_statistics.csv", index=False)
+    return send_from_directory(annotation_stat_path, f"{project_name}_annotation_statistics.csv", as_attachment=True)
 
 
 @api.route("/api/<project_name>/image/<image_name>/roimask", methods=["POST"])

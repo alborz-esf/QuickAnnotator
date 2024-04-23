@@ -60,7 +60,14 @@ class Roi(db.Model):
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
+class stat(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    imageId = db.Column(db.Integer, db.ForeignKey('image.id'), nullable=False)
+    date = db.Column(db.Text)
 
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+    
 class Job(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     projId = db.Column(db.Integer, db.ForeignKey('project.id'), nullable=False)
