@@ -122,6 +122,7 @@
 						<li><a href="{{ url_for('api.get_mask', project_name=project.name, image_name=image.name) }}" download>Human Annotation Image</a></li>
 						<li><a href="{{ url_for('api.get_annotation_stats', project_name=project.name) }}" download> Annotation Statistics</a></li>
                         <li><a href="#" id="statisticsLink">Statistics</a></li>
+                        <li><a href="{{ url_for('api.show_labels', project_name=project.name, image_name=image.name) }}">Show Label Number</a></li>
 					</ul>
                 </li>
                 <li><a onclick="prevnext('previous')">&#8617; Previous image</a></li>
