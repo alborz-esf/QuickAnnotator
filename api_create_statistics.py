@@ -4,10 +4,9 @@ import numpy as np
 import pandas as pd
 from skimage.measure import regionprops_table
 
-def read_images(api_img, api_mask, mask_filter=150, resize=480):
+def read_images(api_img, api_mask, prop_table, mask_filter=150, resize=480):
     img = None
     mask = None
-
     img = Image.open(api_img)
 
     mask = Image.open(api_mask)
@@ -25,21 +24,20 @@ def read_images(api_img, api_mask, mask_filter=150, resize=480):
     mask = mask > mask_filter
     print(f'=============> images loaded')
     
-    return make_prop(img, mask)
+    return make_prop(img, mask, prop_table)
 
-def make_prop(img, mask):
+def make_prop(img, mask, prop_table):
     
     labels = measure.label(mask)
-    props = measure.regionprops(labels, img)
+    # props = measure.regionprops(labels, img)
     print(f'=============> props created')
 
-    return make_table_of_features(labels)
+    return make_table_of_features(labels, prop_table)
 
-def make_table_of_features(labels):
+def make_table_of_features(labels, prop_table):
 
-    props_pd = regionprops_table(labels, properties=('centroid','orientation',
-                                                     'eccentricity', 'perimeter', 'area'))
-                                            
+    props_pd = regionprops_table(labels, properties=prop_table)
+               
     res_df = pd.DataFrame(props_pd)
     print(f'=============> table created')
     return res_df

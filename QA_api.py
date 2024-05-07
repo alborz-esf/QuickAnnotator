@@ -676,8 +676,15 @@ def get_roimask(project_name, roi_name):
 
     return response
 
-@api.route("/api/<project_name>/image/<image_name>/mask/get_statistics", methods=["GET"])
+from flask import request
+
+@api.route("/api/<project_name>/image/<image_name>/mask/get_statistics", methods=["POST"])
 def get_statistics(project_name, image_name):
+    data = request.get_json()
+    if not data or 'selectedOptions' not in data:
+        return jsonify(error="Selected options not provided"), 400
+    
+    selected_options = data['selectedOptions']
 
     if not (os.path.exists(f"./projects/{project_name}/mask/"+image_name.replace(".png", "_mask.png"))):
         return jsonify(error=f"Human annotation mask file doesn't exist"), 404
@@ -685,12 +692,11 @@ def get_statistics(project_name, image_name):
     image = f"./projects/{project_name}/{image_name}"
     mask = f"./projects/{project_name}/mask/"+ image_name.replace(".png", "_mask.png")
 
-    res = read_images(image, mask)
-
+    res = read_images(image, mask, selected_options)
+    
     annotation_stat_path = f"./projects/{project_name}/"
     res.to_csv(annotation_stat_path+f"{project_name}_annotation_statistics.csv", index=False)
     return send_from_directory(annotation_stat_path, f"{project_name}_annotation_statistics.csv", as_attachment=True)
-
 
 @api.route("/api/<project_name>/image/<image_name>/roimask", methods=["POST"])
 def post_roimask(project_name, image_name):
