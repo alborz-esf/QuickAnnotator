@@ -583,6 +583,18 @@ function annotationDotToggle() {
 
 }
 
+function labelsDotToggle() {
+    if (showlabelsDot) {
+        showlabelsDot = false;
+        document.getElementById('Label-dot').style.backgroundColor = colorOFF
+    } else {
+        showlabelsDot = true;
+        document.getElementById('Label-dot').style.backgroundColor = colorON
+    }
+    updateViewMode();
+
+}
+
 function predictionDotToggle() {
     if (showPredictionDot) {
         showPredictionDot = false;

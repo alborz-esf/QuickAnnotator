@@ -183,4 +183,5 @@ let logWindowMessage = "<u>Log Window Message</u>:<br>"
 // Frontend about showing/hiding annotation/prediction layer, which give user 4 view modes in total
 let showAnnotationDot = true;
 let showPredictionDot = false;
+let showlabelsDot = false;
 ////////////////////////////////////////////////////////////////////////////////////////////////////

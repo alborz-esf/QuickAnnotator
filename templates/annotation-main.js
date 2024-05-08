@@ -336,6 +336,7 @@ function init() {
     prepareMouseListeners(canvas_bg);
     prepareMouseListeners(canvas_mask);
     prepareMouseListeners(canvas_result);
+    prepareMouseListeners(canvas_label);
     prepareToolMouseListeners(canvas_cropped_mask);
     //2/4 added
     prepareToolMouseListeners(canvas_cropped_bg);
@@ -384,6 +385,10 @@ function init() {
 // key bindings:
 shortcut.add("q", function() {
     annotationDotToggle();
+});
+
+shortcut.add("p", function() {
+    labelsDotToggle();
 });
 
 shortcut.add("w", function() {
