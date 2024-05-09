@@ -232,14 +232,23 @@ function drawMaskBorders(rois) {
     }
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-//loading labels from backend
 function get_label_mask() {
     let labelResultReady = function() {
-        addNotification('Redrawing label now.')
+        addNotification('Redrawing label now.');
+        // Clear the canvas
         ctx_label.clearRect(0, 0, canvasWidth, canvasHeight);
-        ctx_label.drawImage(canvas_result_ori, 0, 0, canvasWidth, canvasHeight);
-        setAlphaChannel(ctx_label, 127, 127);
-        label_loaded = true;
+        
+        // Draw the loaded image onto the canvas
+        let img = new Image();
+        img.onload = function() {
+            ctx_label.drawImage(img, 0, 0, canvasWidth, canvasHeight);
+            // Apply alpha channel or any other manipulations if needed
+            setAlphaChannel(ctx_label, 127, 0);
+            label_loaded = true;
+            // Show the label canvas
+            showHideLayers("label", show_mask = false, show_result = false, show_label = true);
+        };
+        img.src = "{{ url_for('api.get_label', project_name=project.name, image_name=image.name)}}";
     }; // drawlabel
 
     // load the label image to apply
@@ -247,6 +256,7 @@ function get_label_mask() {
     ignore_errors = true;
     loadImageAndRetry(label_url, ctx_label, labelResultReady, ignore_errors, 'label');
 }
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Functions controlling the deep learning:
 
@@ -357,7 +367,6 @@ function showDLResult() {
 }
 
 function showlabellayer(){
-    showHideLayers("label", show_mask = false, show_result = false, show_label = true);
     get_label_mask();
     enableToolButton();
 } // showlabel
@@ -479,6 +488,9 @@ let updateZoomFactor = function() {
 
     canvas_bg.width = canvasWidth;
     canvas_bg.height = canvasHeight;
+
+    canvas_label.width = canvasWidth;
+    canvas_label.height = canvasHeight;
 
     canvas_mask.width = canvasWidth;
     canvas_mask.height = canvasHeight;

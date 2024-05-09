@@ -209,8 +209,8 @@ function init() {
         canvas_bg_ori.width = imgWidth;
         canvas_bg_ori.height = imgHeight;
 
-        canvas_label.width = imgWidth;
-        canvas_label.height = imgHeight;
+        canvas_label_ori.width = imgWidth;
+        canvas_label_ori.height = imgHeight;
 
         canvas_mask_ori.width = imgWidth;
         canvas_mask_ori.height = imgHeight;
