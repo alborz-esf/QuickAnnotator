@@ -1,10 +1,11 @@
 from PIL import Image
+from PIL import  ImageDraw, ImageFont
 from skimage import measure
 import numpy as np
 import pandas as pd
 from skimage.measure import regionprops_table
 
-def read_images(api_img, api_mask, prop_table, mask_filter=150, resize=480):
+def read_images(api_img, api_mask, mask_filter=150):
     img = None
     mask = None
     img = Image.open(api_img)
@@ -12,27 +13,20 @@ def read_images(api_img, api_mask, prop_table, mask_filter=150, resize=480):
     mask = Image.open(api_mask)
 
     img = img.convert('L')
-    w, h = img.size
-    resize_factor = max(w,h) / resize
-
-    img = img.resize((int(w//resize_factor),int(h//resize_factor)))
     img = np.array(img)
 
     mask = mask.convert('L')
-    mask = mask.resize((int(w//resize_factor),int(h//resize_factor)))
     mask = np.array(mask)
     mask = mask > mask_filter
     print(f'=============> images loaded')
     
-    return make_prop(img, mask, prop_table)
+    return img, mask
 
-def make_prop(img, mask, prop_table):
+def make_prop(img, mask):
     
     labels = measure.label(mask)
-    # props = measure.regionprops(labels, img)
     print(f'=============> props created')
-
-    return make_table_of_features(labels, prop_table)
+    return labels
 
 def make_table_of_features(labels, prop_table):
 
@@ -42,28 +36,27 @@ def make_table_of_features(labels, prop_table):
     print(f'=============> table created')
     return res_df
 
+def calculate_statistics(api_img, api_mask, prop_table, mask_filter=150):
+    
+    img, mask = read_images(api_img, api_mask, mask_filter)
+    labels =  make_prop(img, mask)
+    return make_table_of_features(labels, prop_table)
 
-def set_image_labels(api_img, api_mask, mask_filter=150, resize=480):
-    img = None
-    mask = None
-    img = Image.open(api_img)
+def set_image_labels(api_img, api_mask, project_name, image_name, mask_filter=150):
+    
+    img, mask = read_images(api_img, api_mask, mask_filter)
+    labels =  make_prop(img, mask)
+    props_pd = make_table_of_features(labels, ('label','centroid'))
+    label_img = Image.open(api_mask)
+    label_font = ImageFont.truetype('arial.ttf', 80)
+    img_draw = ImageDraw.Draw(label_img)
 
-    mask = Image.open(api_mask)
-
-    img = img.convert('L')
-    w, h = img.size
-    resize_factor = max(w,h) / resize
-
-    img = img.resize((int(w//resize_factor),int(h//resize_factor)))
-    img = np.array(img)
-
-    mask = mask.convert('L')
-    mask = mask.resize((int(w//resize_factor),int(h//resize_factor)))
-    mask = np.array(mask)
-    mask = mask > mask_filter
-    labels = measure.label(mask)
-    props_pd = regionprops_table(labels, properties=('label','centroid'))
-    # print(f'----------------=================={props_pd}++++++++++++++++++++++++++++')
-    return True
+    for index, row in props_pd.iterrows():
+        img_draw.text((row['centroid-1'], row['centroid-0']), str(int(row['label'])), font=label_font, fill=(255, 0, 0))
+    
+    img_label_name = f"./projects/{project_name}/"+ image_name.replace(".png", "_label.png")
+    label_img.save(img_label_name, "PNG")
+    print("=============> label image created")
+    return img_label_name
     
  

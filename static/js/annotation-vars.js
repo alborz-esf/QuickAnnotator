@@ -13,6 +13,8 @@ const colorRUNNING = "#FFFF00";
 // Note: the getContext() method returns an object that provides methods and properties for drawing on the canvas.
 let canvas_bg = document.getElementById("canvas_bg");
 let ctx_bg = canvas_bg.getContext("2d");
+let canvas_label = document.getElementById("canvas_label");
+let ctx_label = canvas_label.getContext("2d");
 let canvas_mask = document.getElementById("canvas_mask");
 let ctx_mask = canvas_mask.getContext("2d");
 let canvas_result = document.getElementById("canvas_result");
@@ -32,6 +34,8 @@ let canvas_mask_ori = document.createElement("canvas");
 let ctx_mask_ori = canvas_mask_ori.getContext("2d");
 let canvas_result_ori = document.createElement("canvas");
 let ctx_result_ori = canvas_result_ori.getContext("2d");
+let canvas_label_ori = document.createElement("canvas");
+let ctx_label_ori = canvas_result_ori.getContext("2d");
 let canvas_superpixel_ori = document.createElement("canvas");
 let ctx_superpixel_ori = canvas_superpixel_ori.getContext("2d");
 let canvas_superpixel_boundary_ori = document.createElement("canvas");
@@ -57,6 +61,7 @@ let cropped_center_x, cropped_center_y;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 let prediction_loaded = false;
+let label_loaded = false;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -126,7 +131,7 @@ let annotateData = [];
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-let layer = "fuse"; // annotation, fuse, dl
+let layer = "fuse"; // annotation, fuse, dl, label
 let mode = "superpixel"; // freehand, superpixel, eraser, flood
 let annotation_class = "positive"; // positive, negative, unknown
 let positiveRGB = [0, 255, 255];

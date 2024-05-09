@@ -19,7 +19,7 @@ from QA_config import config, get_database_uri
 from QA_db import Image, Project, Roi, db, Job, get_latest_modelid, get_imagetable
 from QA_pool import pool_get_image, pool_run_script, update_completed_job_status
 from QA_utils import get_file_tail
-from api_create_statistics import read_images, set_image_labels
+from api_create_statistics import calculate_statistics, set_image_labels
 
 api = Blueprint("api", __name__)
 jobs_logger = logging.getLogger('jobs')
@@ -691,23 +691,23 @@ def get_statistics(project_name, image_name):
     image = f"./projects/{project_name}/{image_name}"
     mask = f"./projects/{project_name}/mask/"+ image_name.replace(".png", "_mask.png")
 
-    res = read_images(image, mask, selected_options)
+    res = calculate_statistics(image, mask, selected_options)
     
     annotation_stat_path = f"./projects/{project_name}/"
     res.to_csv(annotation_stat_path+f"{project_name}_annotation_statistics.csv", index=False)
     return send_from_directory(annotation_stat_path, f"{project_name}_annotation_statistics.csv", as_attachment=True)
 
 
-@api.route("/api/<project_name>/image/<image_name>/mask/show_labels", methods=["POST"])
-def show_labels(project_name, image_name):
+@api.route("/api/<project_name>/image/<image_name>/label", methods=["GET"])
+def get_label(project_name, image_name):
     if not (os.path.exists(f"./projects/{project_name}/mask/"+image_name.replace(".png", "_mask.png"))):
         return jsonify(error=f"Human annotation mask file doesn't exist"), 404
     
     image = f"./projects/{project_name}/{image_name}"
     mask = f"./projects/{project_name}/mask/"+ image_name.replace(".png", "_mask.png")
     print("====================+================")
-    res = set_image_labels(image, mask)
-    return res
+    res = set_image_labels(image, mask, project_name, image_name)
+    return pool_get_image(project_name, "get_label", "get_label", res, imageid=None)
     
 
 @api.route("/api/<project_name>/image/<image_name>/roimask", methods=["POST"])

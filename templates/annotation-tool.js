@@ -1104,6 +1104,9 @@ function enableToolButton(){
         case "prediction":
             assignedBoolean = true;
             break;
+        case "label":
+            assignedBoolean = true;
+            break;
         default:
             break;
     }

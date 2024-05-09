@@ -185,7 +185,6 @@ function redrawMask() {
 } // redrawMask
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 function drawMaskBorders(rois) {
     for (const roi of rois) {
@@ -233,8 +232,21 @@ function drawMaskBorders(rois) {
     }
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+//loading labels from backend
+function get_label_mask() {
+    let labelResultReady = function() {
+        addNotification('Redrawing label now.')
+        ctx_label.clearRect(0, 0, canvasWidth, canvasHeight);
+        ctx_label.drawImage(canvas_result_ori, 0, 0, canvasWidth, canvasHeight);
+        setAlphaChannel(ctx_label, 127, 127);
+        label_loaded = true;
+    }; // drawlabel
 
-
+    // load the label image to apply
+    let label_url = "{{ url_for('api.get_label', project_name=project.name, image_name=image.name)}}";        
+    ignore_errors = true;
+    loadImageAndRetry(label_url, ctx_label, labelResultReady, ignore_errors, 'label');
+}
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Functions controlling the deep learning:
 
@@ -285,6 +297,7 @@ function hideLayers() {
     canvas_result.style.visibility = 'hidden';
     canvas_cropped_mask.style.visibility = "hidden";
     canvas_cropped_result.style.visibility = "hidden";
+    canvas_label.style.visibility = 'hidden';
 }
 
 function showDLInternal() {
@@ -301,13 +314,26 @@ function showMaskInternal() {
     canvas_cropped_mask.style.visibility = "visible";
 }
 
-function showHideLayers(layer_name, show_mask = false, show_result = false) {
+function showLabel() {
+    if (!label_loaded) {
+        addNotification('Warning: No label has been generated yet.');
+        return;
+    }
+    canvas_label.style.visibility = 'visible';
+}
+
+function showHideLayers(layer_name, show_mask = false, show_result = false, show_label = false) {
     layer = layer_name;
     hideLayers();
-    if (show_mask) showMaskInternal();
-    if (show_result) showDLInternal();
-    restoreSelection();
-    enableToolButton();
+
+    if (show_label) showLabel();
+    else {
+        if (show_mask) showMaskInternal();
+        if (show_result) showDLInternal();
+        restoreSelection();
+        enableToolButton();
+    }
+    
 }
 
 function showOriginal(){
@@ -330,6 +356,11 @@ function showDLResult() {
     enableToolButton();
 }
 
+function showlabellayer(){
+    showHideLayers("label", show_mask = false, show_result = false, show_label = true);
+    get_label_mask();
+    enableToolButton();
+} // showlabel
 // layers
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -608,9 +639,10 @@ function predictionDotToggle() {
 }
 
 function updateViewMode() {
-    if (showAnnotationDot) {
-        if (showPredictionDot) {showDLFusedAnnotation()} else {showAnnotation()}
-    } else if (showPredictionDot) {showDLResult()} else {showOriginal()}
+    if (showlabelsDot) {showlabellayer()}
+    else if (showAnnotationDot) {
+            if (showPredictionDot) {showDLFusedAnnotation()} else {showAnnotation()}
+        } else if (showPredictionDot) {showDLResult()} else {showOriginal()}
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

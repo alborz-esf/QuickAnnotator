@@ -209,6 +209,9 @@ function init() {
         canvas_bg_ori.width = imgWidth;
         canvas_bg_ori.height = imgHeight;
 
+        canvas_label.width = imgWidth;
+        canvas_label.height = imgHeight;
+
         canvas_mask_ori.width = imgWidth;
         canvas_mask_ori.height = imgHeight;
 
@@ -336,7 +339,6 @@ function init() {
     prepareMouseListeners(canvas_bg);
     prepareMouseListeners(canvas_mask);
     prepareMouseListeners(canvas_result);
-    prepareMouseListeners(canvas_label);
     prepareToolMouseListeners(canvas_cropped_mask);
     //2/4 added
     prepareToolMouseListeners(canvas_cropped_bg);
