@@ -705,7 +705,6 @@ def get_label(project_name, image_name):
     
     image = f"./projects/{project_name}/{image_name}"
     mask = f"./projects/{project_name}/mask/"+ image_name.replace(".png", "_mask.png")
-    print("====================+================")
     res = set_image_labels(image, mask, project_name, image_name)
     return pool_get_image(project_name, "get_label", "get_label", res, imageid=None)
     

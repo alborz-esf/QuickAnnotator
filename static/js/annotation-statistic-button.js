@@ -12,12 +12,17 @@ document.addEventListener("DOMContentLoaded", function() {
                 "Perimeter",
                 "Area",
                 "Minor_Axis_Length",
-                "Major_Axis_Length"
+                "Major_Axis_Length",
+                "All"
             ]; 
             
             let html = '';
             for (const option of options) {
-                html += `<h3>${option} <input type="checkbox" id="${option.toLowerCase()}" /></h3><p/>`;
+                if (option === "All") {
+                    html += `<h3>${option} <input type="checkbox" id="${option.toLowerCase()}" class="check-all" /></h3><p/>`;
+                } else {
+                    html += `<h3>${option} <input type="checkbox" id="${option.toLowerCase()}" /></h3><p/>`;
+                }
             }
             
             Swal.fire({
@@ -26,9 +31,12 @@ document.addEventListener("DOMContentLoaded", function() {
                 confirmButtonText: 'Confirmar',
                 preConfirm: () => {
                     const values = {};
+                    const checkAll = document.getElementById("all");
+                    const checkAllValue = checkAll ? checkAll.checked : false;
                     for (const option of options) {
+                        if (option === "All") continue;
                         const checkbox = Swal.getPopup().querySelector(`#${option.toLowerCase()}`);
-                        values[option.toLowerCase()] = checkbox.checked;
+                        values[option.toLowerCase()] = checkAllValue || checkbox.checked;
                     }
                     return values;
                 }
@@ -39,10 +47,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 parts.pop();
                 const imageName = parts.pop(); // Get the last part of the URL as the image name
                 const projectName = parts.pop(); // Get the second last part of the URL as the project name
-                
-                // console.log('Selected Options:', selectedOptions);
-                // console.log('Project Name:', projectName);
-                // console.log('Image Name:', imageName);
                 
                 // Make POST request to API with selected options
                 fetch(`/api/${projectName}/image/${imageName}/mask/get_statistics`, {
@@ -61,6 +65,16 @@ document.addEventListener("DOMContentLoaded", function() {
                 })
                 .catch(error => console.error('Error:', error));
             });
+
+            const checkAllCheckbox = document.getElementById("all");
+            if (checkAllCheckbox) {
+                checkAllCheckbox.addEventListener("change", function() {
+                    const otherCheckboxes = document.querySelectorAll('input[type="checkbox"]:not(.check-all)');
+                    otherCheckboxes.forEach(checkbox => {
+                        checkbox.checked = checkAllCheckbox.checked;
+                    });
+                });
+            }
         
         });
     }
