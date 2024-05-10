@@ -75,6 +75,14 @@ document.addEventListener("DOMContentLoaded", function() {
                     });
                 });
             }
+
+            const otherCheckboxes = document.querySelectorAll('input[type="checkbox"]:not(.check-all)');
+            otherCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener("change", function() {
+                    const checkedCheckboxes = document.querySelectorAll('input[type="checkbox"]:checked:not(.check-all)');
+                    checkAllCheckbox.checked = checkedCheckboxes.length === otherCheckboxes.length;
+                });
+            });
         
         });
     }
